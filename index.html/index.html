@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickServe Laundry</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: #252a38;
+    --accent: #4af0a0;
+    --accent2: #4ab8f0;
+    --warn: #f0a04a;
+    --danger: #f05a4a;
+    --text: #e8ecf5;
+    --muted: #6b7280;
+    --radius: 12px;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 230px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  nav { padding: 16px 12px; flex: 1; }
+
+  .nav-section {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 8px 6px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(74,240,160,0.1); color: var(--accent); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: 230px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .page-title {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  .badge {
+    background: rgba(74,240,160,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(74,240,160,0.3);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+  }
+
+  .content { padding: 28px 32px; flex: 1; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── STATS ROW ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.green::before { background: var(--accent); }
+  .stat-card.blue::before  { background: var(--accent2); }
+  .stat-card.orange::before{ background: var(--warn); }
+  .stat-card.red::before   { background: var(--danger); }
+
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .stat-value { font-family: var(--font-head); font-size: 32px; font-weight: 800; margin: 6px 0 2px; }
+  .stat-sub { font-size: 11px; color: var(--muted); }
+  .stat-card.green .stat-value { color: var(--accent); }
+  .stat-card.blue .stat-value  { color: var(--accent2); }
+  .stat-card.orange .stat-value{ color: var(--warn); }
+  .stat-card.red .stat-value   { color: var(--danger); }
+
+  /* ── TABLES ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .card-title {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .search-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+    width: 220px;
+    transition: border 0.15s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  td {
+    padding: 13px 20px;
+    font-size: 12.5px;
+    border-bottom: 1px solid rgba(37,42,56,0.6);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .status-pill::before { content:''; width:6px; height:6px; border-radius:50%; }
+
+  .pill-ready   { background:rgba(74,240,160,0.12); color:var(--accent);  border:1px solid rgba(74,240,160,0.25); }
+  .pill-ready::before { background:var(--accent); }
+  .pill-washing { background:rgba(74,184,240,0.12); color:var(--accent2); border:1px solid rgba(74,184,240,0.25); }
+  .pill-washing::before { background:var(--accent2); }
+  .pill-pending { background:rgba(240,160,74,0.12); color:var(--warn);    border:1px solid rgba(240,160,74,0.25); }
+  .pill-pending::before { background:var(--warn); }
+  .pill-delivered { background:rgba(107,114,128,0.15); color:var(--muted); border:1px solid rgba(107,114,128,0.25); }
+  .pill-delivered::before { background:var(--muted); }
+  .pill-cancelled { background:rgba(240,90,74,0.12); color:var(--danger); border:1px solid rgba(240,90,74,0.25); }
+  .pill-cancelled::before { background:var(--danger); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #0d0f14; font-weight: 600; }
+  .btn-primary:hover { background: #5fffa8; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn-danger { background: rgba(240,90,74,0.1); color: var(--danger); border: 1px solid rgba(240,90,74,0.25); }
+  .btn-danger:hover { background: rgba(240,90,74,0.2); }
+
+  .role-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .role-option.selected {
+    background: rgba(74,240,160,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  #loginModal { background: var(--bg); }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 520px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-title {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-full { grid-column: 1 / -1; }
+
+  label { display: block; font-size: 10px; color: var(--muted); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 5px; }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+    transition: border 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ── CLOSE BTN ── */
+  .close-btn {
+    background: none; border: none; color: var(--muted);
+    font-size: 20px; cursor: pointer; line-height: 1;
+    transition: color 0.15s;
+  }
+  .close-btn:hover { color: var(--text); }
+
+  /* ── DETAIL VIEW ── */
+  .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { color: var(--muted); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 48px; color: var(--muted); font-size: 13px; }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── DASHBOARD RECENT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    #sidebar { width: 60px; }
+    .logo-mark, .logo-sub, .nav-item span, .nav-section, .sidebar-footer { display: none; }
+    #main { margin-left: 60px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="logo">
+    <div class="logo-mark">⚡ QuickServe</div>
+    <div class="logo-sub">Laundry System</div>
+  </div>
+  <nav>
+    <div class="nav-section">Menu</div>
+    <div class="nav-item active" data-page="dashboard">
+      <span class="icon">📊</span><span>Dashboard</span>
+    </div>
+    <div class="nav-item" data-page="orders">
+      <span class="icon">🧺</span><span>Orders</span>
+    </div>
+    <div class="nav-item" data-page="customers">
+      <span class="icon">👥</span><span>Customers</span>
+    </div>
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" data-page="services">
+      <span class="icon">🏷️</span><span>Services</span>
+    </div>
+    <div class="nav-item" data-page="reports">
+      <span class="icon">📈</span><span>Reports</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">v1.0 · 2024</div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <header>
+    <div class="page-title" id="headerTitle">Dashboard</div>
+    <div class="header-actions">
+      <span class="badge" id="liveClock"></span>
+      <span class="badge" id="userBadge" style="display:none;"></span>
+      <button class="btn btn-ghost" id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+      <button class="btn btn-primary" id="headerActionBtn" onclick="openAddModal()">＋ New Order</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Active Orders</div>
+          <div class="stat-value" id="stat-active">0</div>
+          <div class="stat-sub">In progress</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-label">Ready Pickup</div>
+          <div class="stat-value" id="stat-ready">0</div>
+          <div class="stat-sub">Awaiting customer</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Customers</div>
+          <div class="stat-value" id="stat-customers">0</div>
+          <div class="stat-sub">Registered</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Orders</span></div>
+          <table>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Status</th><th>Amount</th></tr></thead>
+            <tbody id="dash-recent-orders"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Ready for Pickup</span></div>
+          <table>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Phone</th></tr></thead>
+            <tbody id="dash-pickup-orders"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">All Orders</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="statusFilter" class="search-box" style="width:140px;" onchange="renderOrders()">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Washing">Washing</option>
+              <option value="Ready">Ready</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <input class="search-box" id="orderSearch" placeholder="🔍  Search orders..." oninput="renderOrders()">
+            <button class="btn btn-primary" onclick="openAddOrderModal()">＋ New Order</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Order #</th><th>Customer</th><th>Service</th><th>Weight</th><th>Status</th><th>Date</th><th>Amount</th><th>Actions</th></tr></thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="page" id="page-customers">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Customer Records</span>
+          <div style="display:flex;gap:8px;">
+            <input class="search-box" id="customerSearch" placeholder="🔍  Search customers..." oninput="renderCustomers()">
+            <button class="btn btn-primary" onclick="openAddCustomerModal()">＋ Add Customer</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="customers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="page" id="page-services">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Service Menu & Pricing</span></div>
+        <table>
+          <thead><tr><th>Service</th><th>Unit</th><th>Price</th><th>Turnaround</th><th>Description</th></tr></thead>
+          <tbody id="services-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-label">Revenue (This Month)</div>
+          <div class="stat-value" id="rep-revenue">₱0</div>
+          <div class="stat-sub">Delivered orders</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Orders This Month</div>
+          <div class="stat-value" id="rep-orders">0</div>
+          <div class="stat-sub">All statuses</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-label">Avg Order Value</div>
+          <div class="stat-value" id="rep-avg">₱0</div>
+          <div class="stat-sub">Delivered only</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">New Customers</div>
+          <div class="stat-value" id="rep-newcust">0</div>
+          <div class="stat-sub">This month</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Orders by Status</span></div>
+          <table>
+            <thead><tr><th>Status</th><th>Count</th><th>Share</th></tr></thead>
+            <tbody id="rep-status-tbody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Top Services</span></div>
+          <table>
+            <thead><tr><th>Service</th><th>Orders</th><th>Revenue</th></tr></thead>
+            <tbody id="rep-service-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Add/Edit Order Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="orderModalTitle">New Order</span>
+      <button class="close-btn" onclick="closeModal('orderModal')">×</button>
+    </div>
+    <div class="form-grid">
+      <div>
+        <label>Customer</label>
+        <select id="f-customer"></select>
+      </div>
+      <div>
+        <label>Service</label>
+        <select id="f-service" onchange="updatePrice()"></select>
+      </div>
+      <div>
+        <label>Weight (kg)</label>
+        <input type="number" id="f-weight" min="0.5" step="0.5" value="1" oninput="updatePrice()">
+      </div>
+      <div>
+        <label>Amount (₱)</label>
+        <input type="number" id="f-amount" step="1">
+      </div>
+      <div>
+        <label>Status</label>
+        <select id="f-status">
+          <option>Pending</option>
+          <option>Washing</option>
+          <option>Ready</option>
+          <option>Delivered</option>
+          <option>Cancelled</option>
+        </select>
+      </div>
+      <div>
+        <label>Pickup Date</label>
+        <input type="date" id="f-pickup">
+      </div>
+      <div class="form-full">
+        <label>Notes</label>
+        <textarea id="f-notes" rows="2" placeholder="Special instructions..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('orderModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Customer Modal -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="customerModalTitle">New Customer</span>
+      <button class="close-btn" onclick="closeModal('customerModal')">×</button>
+    </div>
+    <div class="form-grid">
+      <div>
+        <label>First Name</label>
+        <input type="text" id="cf-first" placeholder="Juan">
+      </div>
+      <div>
+        <label>Last Name</label>
+        <input type="text" id="cf-last" placeholder="dela Cruz">
+      </div>
+      <div>
+        <label>Phone</label>
+        <input type="text" id="cf-phone" placeholder="09xx-xxx-xxxx">
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" id="cf-email" placeholder="email@example.com">
+      </div>
+      <div class="form-full">
+        <label>Address</label>
+        <input type="text" id="cf-address" placeholder="Street, Barangay, City">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('customerModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Order Modal -->
+<div class="modal-overlay" id="viewOrderModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="viewOrderTitle">Order Details</span>
+      <button class="close-btn" onclick="closeModal('viewOrderModal')">×</button>
+    </div>
+    <div id="viewOrderContent"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('viewOrderModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Customer Modal -->
+<div class="modal-overlay" id="viewCustomerModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="viewCustomerTitle">Customer Details</span>
+      <button class="close-btn" onclick="closeModal('viewCustomerModal')">×</button>
+    </div>
+    <div id="viewCustomerContent"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('viewCustomerModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay open" id="loginModal">
+  <div class="modal">
+    <div class="modal-title">QuickServe Login</div>
+    <div class="form-grid">
+      <div class="form-full">
+        <label>Role</label>
+        <div class="role-selector">
+          <button type="button" class="btn btn-ghost role-option" data-role="Admin" onclick="setLoginRole('Admin')">Admin</button>
+          <button type="button" class="btn btn-ghost role-option" data-role="Manager" onclick="setLoginRole('Manager')">Manager</button>
+          <button type="button" class="btn btn-ghost role-option" data-role="Staff" onclick="setLoginRole('Staff')">Staff</button>
+        </div>
+        <input type="hidden" id="loginRole">
+      </div>
+      <div class="form-full">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="Username">
+      </div>
+      <div class="form-full">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="Password">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="loginUser()">Log in</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── MOCK DATA ──────────────────────────────────────────────────────
+
+const SERVICES = [
+  { id: 1, name: 'Regular Wash & Dry',  unit: 'per kg',  price: 55,  turnaround: '4-6 hours', desc: 'Standard wash, dry, and fold' },
+  { id: 2, name: 'Wash, Dry & Press',   unit: 'per kg',  price: 75,  turnaround: '8-12 hours', desc: 'Full service with ironing' },
+  { id: 3, name: 'Dry Clean',           unit: 'per piece',price: 120, turnaround: '1-2 days',  desc: 'Professional dry cleaning' },
+  { id: 4, name: 'Blanket / Comforter', unit: 'per piece',price: 180, turnaround: '6-8 hours', desc: 'Heavy items wash & dry' },
+  { id: 5, name: 'Express Wash',        unit: 'per kg',  price: 85,  turnaround: '2-3 hours', desc: 'Priority fast wash & dry' },
+  { id: 6, name: 'Shoe Cleaning',       unit: 'per pair', price: 150, turnaround: '1 day',     desc: 'Deep shoe cleaning & deodorize' },
+];
+
+let customers = [
+  { id: 'C001', first:'Maria',   last:'Santos',    phone:'0917-234-5678', email:'maria.santos@gmail.com',   address:'12 Rizal St, Brgy. Centro, Cebu City', joined:'2024-01-10' },
+  { id: 'C002', first:'Jose',    last:'Reyes',     phone:'0905-876-5432', email:'jose.reyes@yahoo.com',     address:'45 Mabini Ave, Mandaue City',           joined:'2024-02-05' },
+  { id: 'C003', first:'Ana',     last:'Garcia',    phone:'0928-345-6789', email:'ana.garcia@outlook.com',   address:'78 Osmena Blvd, Cebu City',             joined:'2024-02-18' },
+  { id: 'C004', first:'Roberto', last:'Villanueva',phone:'0956-789-0123', email:'roberto.v@gmail.com',      address:'23 Colon St, Cebu City',                joined:'2024-03-01' },
+  { id: 'C005', first:'Carmen',  last:'Mendoza',   phone:'0912-456-7890', email:'carmen.m@gmail.com',       address:'56 Salinas Dr, Lahug, Cebu City',       joined:'2024-03-15' },
+  { id: 'C006', first:'Ricardo', last:'Cruz',      phone:'0935-567-8901', email:'rcruz@gmail.com',          address:'9 Gorordo Ave, Cebu City',              joined:'2024-04-02' },
+  { id: 'C007', first:'Luisa',   last:'Fernandez', phone:'0947-678-9012', email:'luisa.f@yahoo.com',        address:'34 Jones Ave, Cebu City',               joined:'2024-04-20' },
+  { id: 'C008', first:'Miguel',  last:'Bautista',  phone:'0968-789-0123', email:'mbautista@gmail.com',      address:'67 Jakosalem St, Cebu City',            joined:'2024-05-07' },
+];
+
+let orders = [
+  { id:'ORD-0001', customerId:'C001', serviceId:1, weight:3,   amount:165,  status:'Delivered', date:'2024-06-01', pickup:'2024-06-01', notes:'' },
+  { id:'ORD-0002', customerId:'C003', serviceId:2, weight:2.5, amount:187,  status:'Delivered', date:'2024-06-02', pickup:'2024-06-03', notes:'Handle with care' },
+  { id:'ORD-0003', customerId:'C002', serviceId:5, weight:4,   amount:340,  status:'Delivered', date:'2024-06-05', pickup:'2024-06-05', notes:'' },
+  { id:'ORD-0004', customerId:'C005', serviceId:3, weight:1,   amount:360,  status:'Delivered', date:'2024-06-08', pickup:'2024-06-09', notes:'3 pieces' },
+  { id:'ORD-0005', customerId:'C004', serviceId:4, weight:1,   amount:180,  status:'Delivered', date:'2024-06-10', pickup:'2024-06-10', notes:'King size' },
+  { id:'ORD-0006', customerId:'C006', serviceId:1, weight:5,   amount:275,  status:'Delivered', date:'2024-06-12', pickup:'2024-06-12', notes:'' },
+  { id:'ORD-0007', customerId:'C007', serviceId:2, weight:3,   amount:225,  status:'Ready',     date:'2024-06-15', pickup:'2024-06-15', notes:'Separate dark colors' },
+  { id:'ORD-0008', customerId:'C001', serviceId:5, weight:2,   amount:170,  status:'Ready',     date:'2024-06-15', pickup:'2024-06-15', notes:'' },
+  { id:'ORD-0009', customerId:'C008', serviceId:6, weight:1,   amount:300,  status:'Ready',     date:'2024-06-16', pickup:'2024-06-16', notes:'2 pairs Nike' },
+  { id:'ORD-0010', customerId:'C002', serviceId:1, weight:6,   amount:330,  status:'Washing',   date:'2024-06-16', pickup:'2024-06-16', notes:'' },
+  { id:'ORD-0011', customerId:'C003', serviceId:4, weight:2,   amount:360,  status:'Washing',   date:'2024-06-17', pickup:'2024-06-17', notes:'2 queen blankets' },
+  { id:'ORD-0012', customerId:'C005', serviceId:2, weight:4,   amount:300,  status:'Pending',   date:'2024-06-17', pickup:'2024-06-18', notes:'' },
+  { id:'ORD-0013', customerId:'C004', serviceId:5, weight:3,   amount:255,  status:'Pending',   date:'2024-06-17', pickup:'2024-06-17', notes:'Urgent' },
+  { id:'ORD-0014', customerId:'C006', serviceId:3, weight:1,   amount:240,  status:'Pending',   date:'2024-06-17', pickup:'2024-06-19', notes:'2 barong tagalog' },
+  { id:'ORD-0015', customerId:'C007', serviceId:1, weight:2.5, amount:137,  status:'Cancelled', date:'2024-06-14', pickup:'2024-06-14', notes:'Customer cancelled' },
+];
+
+let editingOrderId = null;
+let editingCustomerId = null;
+let nextOrderNum = 16;
+let nextCustNum = 9;
+
+const USERS = [
+  { username: 'admin', password: 'admin123', role: 'Admin' },
+  { username: 'manager', password: 'manager123', role: 'Manager' },
+  { username: 'staff', password: 'staff123', role: 'Staff' },
+];
+let currentUser = null;
+
+// ── HELPERS ────────────────────────────────────────────────────────
+
+const getCustomer = id => customers.find(c => c.id === id);
+const getService  = id => SERVICES.find(s => s.id === id);
+const fmt = n => '₱' + Number(n).toLocaleString('en-PH', {minimumFractionDigits:2});
+
+function pillClass(status) {
+  return { Pending:'pill-pending', Washing:'pill-washing', Ready:'pill-ready', Delivered:'pill-delivered', Cancelled:'pill-cancelled' }[status] || '';
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function renderAuth() {
+  const userBadge = document.getElementById('userBadge');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const headerBtn = document.getElementById('headerActionBtn');
+
+  if (currentUser) {
+    userBadge.textContent = currentUser.role;
+    userBadge.style.display = 'inline-flex';
+    logoutBtn.style.display = 'inline-flex';
+    headerBtn.disabled = false;
+    headerBtn.style.opacity = '1';
+  } else {
+    userBadge.style.display = 'none';
+    logoutBtn.style.display = 'none';
+    headerBtn.disabled = true;
+    headerBtn.style.opacity = '0.5';
+  }
+}
+
+function setLoginRole(role) {
+  document.getElementById('loginRole').value = role;
+  document.querySelectorAll('.role-option').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.role === role);
+  });
+}
+
+function loginUser() {
+  const username = document.getElementById('loginUser').value.trim().toLowerCase();
+  const password = document.getElementById('loginPass').value;
+  const selectedRole = document.getElementById('loginRole').value;
+  const user = USERS.find(u => u.username === username && u.password === password);
+
+  if (!selectedRole) {
+    alert('Please choose a role before logging in.');
+    return;
+  }
+  if (!user) {
+    alert('Invalid credentials.');
+    return;
+  }
+  if (user.role !== selectedRole) {
+    alert(`Role mismatch. Please choose the correct role for ${user.username}.`);
+    return;
+  }
+
+  currentUser = user;
+  closeModal('loginModal');
+  renderAuth();
+  toast(`✅ Logged in as ${user.role}`);
+  renderDashboard();
+}
+
+function logout() {
+  if (!currentUser) return;
+  currentUser = null;
+  renderAuth();
+  openModal('loginModal');
+  toast('👋 Logged out');
+}
+
+// ── CLOCK ──────────────────────────────────────────────────────────
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveClock').textContent = now.toLocaleString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+
+const pages = { dashboard:'Dashboard', orders:'Orders', customers:'Customers', services:'Services & Pricing', reports:'Reports' };
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    const pg = item.dataset.page;
+    document.getElementById('page-' + pg).classList.add('active');
+    document.getElementById('headerTitle').textContent = pages[pg];
+    const btn = document.getElementById('headerActionBtn');
+    if (pg === 'customers') { btn.textContent = '＋ Add Customer'; btn.onclick = openAddCustomerModal; }
+    else { btn.textContent = '＋ New Order'; btn.onclick = openAddOrderModal; }
+    if (pg === 'dashboard') renderDashboard();
+    if (pg === 'orders')    renderOrders();
+    if (pg === 'customers') renderCustomers();
+    if (pg === 'services')  renderServices();
+    if (pg === 'reports')   renderReports();
+  });
+});
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+
+function renderDashboard() {
+  document.getElementById('stat-total').textContent = orders.length;
+  document.getElementById('stat-active').textContent = orders.filter(o => o.status==='Washing'||o.status==='Pending').length;
+  document.getElementById('stat-ready').textContent = orders.filter(o => o.status==='Ready').length;
+  document.getElementById('stat-customers').textContent = customers.length;
+
+  const recent = [...orders].reverse().slice(0, 6);
+  document.getElementById('dash-recent-orders').innerHTML = recent.map(o => {
+    const c = getCustomer(o.customerId);
+    return `<tr>
+      <td style="color:var(--accent2);font-weight:500;">${o.id}</td>
+      <td>${c ? c.first+' '+c.last : '—'}</td>
+      <td><span class="status-pill ${pillClass(o.status)}">${o.status}</span></td>
+      <td>${fmt(o.amount)}</td>
+    </tr>`;
+  }).join('');
+
+  const pickup = orders.filter(o => o.status === 'Ready');
+  document.getElementById('dash-pickup-orders').innerHTML = pickup.length ? pickup.map(o => {
+    const c = getCustomer(o.customerId);
+    return `<tr>
+      <td style="color:var(--accent2);font-weight:500;">${o.id}</td>
+      <td>${c ? c.first+' '+c.last : '—'}</td>
+      <td>${c ? c.phone : '—'}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="3" class="empty-state">No orders ready for pickup</td></tr>`;
+}
+
+// ── ORDERS ────────────────────────────────────────────────────────
+
+function renderOrders() {
+  const q = (document.getElementById('orderSearch').value || '').toLowerCase();
+  const sf = document.getElementById('statusFilter').value;
+  const filtered = orders.filter(o => {
+    const c = getCustomer(o.customerId);
+    const name = c ? (c.first+' '+c.last).toLowerCase() : '';
+    const matchQ = !q || o.id.toLowerCase().includes(q) || name.includes(q);
+    const matchS = !sf || o.status === sf;
+    return matchQ && matchS;
+  }).reverse();
+
+  document.getElementById('orders-tbody').innerHTML = filtered.length ? filtered.map(o => {
+    const c = getCustomer(o.customerId);
+    const s = getService(o.serviceId);
+    return `<tr>
+      <td style="color:var(--accent2);font-weight:500;cursor:pointer;" onclick="viewOrder('${o.id}')">${o.id}</td>
+      <td>${c ? c.first+' '+c.last : '—'}</td>
+      <td>${s ? s.name : '—'}</td>
+      <td>${o.weight} kg</td>
+      <td><span class="status-pill ${pillClass(o.status)}">${o.status}</span></td>
+      <td>${o.date}</td>
+      <td>${fmt(o.amount)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editOrder('${o.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="8" class="empty-state"><div class="icon">🧺</div>No orders found</td></tr>`;
+}
+
+function viewOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  const c = getCustomer(o.customerId);
+  const s = getService(o.serviceId);
+  document.getElementById('viewOrderTitle').textContent = o.id;
+  document.getElementById('viewOrderContent').innerHTML = `
+    <div class="detail-row"><span class="detail-key">Customer</span><span>${c ? c.first+' '+c.last : '—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Phone</span><span>${c ? c.phone : '—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Service</span><span>${s ? s.name : '—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Weight</span><span>${o.weight} kg</span></div>
+    <div class="detail-row"><span class="detail-key">Amount</span><span style="color:var(--accent);font-weight:600;">${fmt(o.amount)}</span></div>
+    <div class="detail-row"><span class="detail-key">Status</span><span><span class="status-pill ${pillClass(o.status)}">${o.status}</span></span></div>
+    <div class="detail-row"><span class="detail-key">Date Dropped</span><span>${o.date}</span></div>
+    <div class="detail-row"><span class="detail-key">Pickup Date</span><span>${o.pickup||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Notes</span><span>${o.notes||'—'}</span></div>
+  `;
+  openModal('viewOrderModal');
+}
+
+function openAddModal() { openAddOrderModal(); }
+
+function openAddOrderModal() {
+  editingOrderId = null;
+  document.getElementById('orderModalTitle').textContent = 'New Order';
+  populateOrderForm();
+  document.getElementById('f-status').value = 'Pending';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('f-weight').value = 1;
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('f-pickup').value = tomorrow.toISOString().split('T')[0];
+  updatePrice();
+  openModal('orderModal');
+}
+
+function editOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  editingOrderId = id;
+  document.getElementById('orderModalTitle').textContent = 'Edit Order — ' + id;
+  populateOrderForm();
+  document.getElementById('f-customer').value = o.customerId;
+  document.getElementById('f-service').value = o.serviceId;
+  document.getElementById('f-weight').value = o.weight;
+  document.getElementById('f-amount').value = o.amount;
+  document.getElementById('f-status').value = o.status;
+  document.getElementById('f-pickup').value = o.pickup;
+  document.getElementById('f-notes').value = o.notes;
+  openModal('orderModal');
+}
+
+function populateOrderForm() {
+  document.getElementById('f-customer').innerHTML = customers.map(c =>
+    `<option value="${c.id}">${c.first} ${c.last}</option>`).join('');
+  document.getElementById('f-service').innerHTML = SERVICES.map(s =>
+    `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function updatePrice() {
+  const sId = parseInt(document.getElementById('f-service').value);
+  const weight = parseFloat(document.getElementById('f-weight').value) || 1;
+  const s = getService(sId);
+  if (s) document.getElementById('f-amount').value = Math.round(s.price * weight);
+}
+
+function saveOrder() {
+  const customerId = document.getElementById('f-customer').value;
+  const serviceId  = parseInt(document.getElementById('f-service').value);
+  const weight     = parseFloat(document.getElementById('f-weight').value);
+  const amount     = parseFloat(document.getElementById('f-amount').value);
+  const status     = document.getElementById('f-status').value;
+  const pickup     = document.getElementById('f-pickup').value;
+  const notes      = document.getElementById('f-notes').value;
+  if (!customerId || !serviceId || !weight || !amount) { alert('Please fill in required fields.'); return; }
+
+  if (editingOrderId) {
+    const o = orders.find(x => x.id === editingOrderId);
+    Object.assign(o, { customerId, serviceId, weight, amount, status, pickup, notes });
+    toast('✅ Order updated');
+  } else {
+    const id = 'ORD-' + String(nextOrderNum++).padStart(4,'0');
+    orders.push({ id, customerId, serviceId, weight, amount, status, date: new Date().toISOString().split('T')[0], pickup, notes });
+    toast('✅ Order created: ' + id);
+  }
+  closeModal('orderModal');
+  renderOrders();
+  renderDashboard();
+}
+
+function deleteOrder(id) {
+  if (!confirm('Delete order ' + id + '?')) return;
+  orders = orders.filter(o => o.id !== id);
+  renderOrders();
+  renderDashboard();
+  toast('🗑️ Order deleted');
+}
+
+// ── CUSTOMERS ────────────────────────────────────────────────────
+
+function renderCustomers() {
+  const q = (document.getElementById('customerSearch').value || '').toLowerCase();
+  const filtered = customers.filter(c => {
+    const full = (c.first+' '+c.last+' '+c.phone+' '+c.email).toLowerCase();
+    return !q || full.includes(q);
+  });
+
+  document.getElementById('customers-tbody').innerHTML = filtered.length ? filtered.map(c => {
+    const cOrders  = orders.filter(o => o.customerId === c.id);
+    const spent    = cOrders.filter(o=>o.status==='Delivered').reduce((s,o)=>s+o.amount,0);
+    return `<tr>
+      <td style="color:var(--accent2);font-weight:500;cursor:pointer;" onclick="viewCustomer('${c.id}')">${c.id}</td>
+      <td>${c.first} ${c.last}</td>
+      <td>${c.phone}</td>
+      <td>${c.email}</td>
+      <td style="text-align:center;">${cOrders.length}</td>
+      <td>${fmt(spent)}</td>
+      <td>${c.joined}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editCustomer('${c.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="8" class="empty-state"><div class="icon">👥</div>No customers found</td></tr>`;
+}
+
+function viewCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  const cOrders = orders.filter(o => o.customerId === id);
+  const spent = cOrders.filter(o=>o.status==='Delivered').reduce((s,o)=>s+o.amount,0);
+  document.getElementById('viewCustomerTitle').textContent = c.first+' '+c.last;
+  document.getElementById('viewCustomerContent').innerHTML = `
+    <div class="detail-row"><span class="detail-key">Customer ID</span><span>${c.id}</span></div>
+    <div class="detail-row"><span class="detail-key">Full Name</span><span>${c.first} ${c.last}</span></div>
+    <div class="detail-row"><span class="detail-key">Phone</span><span>${c.phone}</span></div>
+    <div class="detail-row"><span class="detail-key">Email</span><span>${c.email}</span></div>
+    <div class="detail-row"><span class="detail-key">Address</span><span>${c.address}</span></div>
+    <div class="detail-row"><span class="detail-key">Joined</span><span>${c.joined}</span></div>
+    <div class="detail-row"><span class="detail-key">Total Orders</span><span>${cOrders.length}</span></div>
+    <div class="detail-row"><span class="detail-key">Total Spent</span><span style="color:var(--accent);font-weight:600;">${fmt(spent)}</span></div>
+  `;
+  openModal('viewCustomerModal');
+}
+
+function openAddCustomerModal() {
+  editingCustomerId = null;
+  document.getElementById('customerModalTitle').textContent = 'New Customer';
+  ['cf-first','cf-last','cf-phone','cf-email','cf-address'].forEach(id => document.getElementById(id).value = '');
+  openModal('customerModal');
+}
+
+function editCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  editingCustomerId = id;
+  document.getElementById('customerModalTitle').textContent = 'Edit Customer — ' + id;
+  document.getElementById('cf-first').value   = c.first;
+  document.getElementById('cf-last').value    = c.last;
+  document.getElementById('cf-phone').value   = c.phone;
+  document.getElementById('cf-email').value   = c.email;
+  document.getElementById('cf-address').value = c.address;
+  openModal('customerModal');
+}
+
+function saveCustomer() {
+  const first   = document.getElementById('cf-first').value.trim();
+  const last    = document.getElementById('cf-last').value.trim();
+  const phone   = document.getElementById('cf-phone').value.trim();
+  const email   = document.getElementById('cf-email').value.trim();
+  const address = document.getElementById('cf-address').value.trim();
+  if (!first || !last || !phone) { alert('Name and phone are required.'); return; }
+
+  if (editingCustomerId) {
+    const c = customers.find(x => x.id === editingCustomerId);
+    Object.assign(c, { first, last, phone, email, address });
+    toast('✅ Customer updated');
+  } else {
+    const id = 'C' + String(nextCustNum++).padStart(3,'0');
+    customers.push({ id, first, last, phone, email, address, joined: new Date().toISOString().split('T')[0] });
+    toast('✅ Customer added: ' + id);
+  }
+  closeModal('customerModal');
+  renderCustomers();
+}
+
+function deleteCustomer(id) {
+  if (!confirm('Delete this customer? Their orders will remain.')) return;
+  customers = customers.filter(c => c.id !== id);
+  renderCustomers();
+  renderDashboard();
+  toast('🗑️ Customer deleted');
+}
+
+// ── SERVICES ────────────────────────────────────────────────────
+
+function renderServices() {
+  document.getElementById('services-tbody').innerHTML = SERVICES.map(s => `
+    <tr>
+      <td style="font-weight:600;color:var(--text);">${s.name}</td>
+      <td>${s.unit}</td>
+      <td style="color:var(--accent);font-weight:600;">${fmt(s.price)}</td>
+      <td>${s.turnaround}</td>
+      <td style="color:var(--muted);">${s.desc}</td>
+    </tr>`).join('');
+}
+
+// ── REPORTS ────────────────────────────────────────────────────
+
+function renderReports() {
+  const delivered = orders.filter(o => o.status === 'Delivered');
+  const revenue   = delivered.reduce((s,o)=>s+o.amount,0);
+  const avg       = delivered.length ? revenue / delivered.length : 0;
+
+  document.getElementById('rep-revenue').textContent = fmt(revenue);
+  document.getElementById('rep-orders').textContent  = orders.length;
+  document.getElementById('rep-avg').textContent     = fmt(Math.round(avg));
+  document.getElementById('rep-newcust').textContent = customers.length;
+
+  const statusCounts = {};
+  orders.forEach(o => { statusCounts[o.status] = (statusCounts[o.status]||0)+1; });
+  document.getElementById('rep-status-tbody').innerHTML = Object.entries(statusCounts).map(([s,n]) => `
+    <tr>
+      <td><span class="status-pill ${pillClass(s)}">${s}</span></td>
+      <td>${n}</td>
+      <td>${Math.round(n/orders.length*100)}%</td>
+    </tr>`).join('');
+
+  const svcMap = {};
+  orders.forEach(o => {
+    const s = getService(o.serviceId);
+    if (!s) return;
+    if (!svcMap[s.name]) svcMap[s.name] = { count:0, revenue:0 };
+    svcMap[s.name].count++;
+    if (o.status==='Delivered') svcMap[s.name].revenue += o.amount;
+  });
+  const sorted = Object.entries(svcMap).sort((a,b)=>b[1].count-a[1].count);
+  document.getElementById('rep-service-tbody').innerHTML = sorted.map(([name,d]) => `
+    <tr>
+      <td>${name}</td>
+      <td style="text-align:center;">${d.count}</td>
+      <td>${fmt(d.revenue)}</td>
+    </tr>`).join('');
+}
+
+// ── MODAL HELPERS ────────────────────────────────────────────────
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target !== overlay) return;
+    if (overlay.id === 'loginModal') return;
+    closeModal(overlay.id);
+  });
+});
+
+// ── INIT ────────────────────────────────────────────────────────
+
+renderAuth();
+renderDashboard();
+</script>
+</body>
+</html>
