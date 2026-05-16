@@ -1,0 +1,7 @@
+{
+  "framework": "static",
+  "cleanUrls": true,
+  "publicDirectory": "./",
+  "buildCommand": "true"
+}
+
